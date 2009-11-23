@@ -29,7 +29,7 @@ module ActionMailer
       
       def render_message_with_inline_styles(method_name, body)
         message = render_message_without_inline_styles(method_name, body)
-        return message if @css.blank?
+        return message if @css.blank? && @less.blank?
         inline(message)
       end
       
@@ -61,16 +61,38 @@ module ActionMailer
         end
         
         def parse_css_from_file(file_name)
-          File.exists?(file_name) ? File.read(file_name) : ''
+          if File.exists?(file_name)
+            if File.extname(file_name) == '.less'
+              require 'less'
+              File.open(file_name) {|f| Less::Engine.new(f) }.to_css
+            else
+              File.read(file_name)
+            end
+          else
+            ''
+          end
         end
         
         def build_css_file_name_from_css_setting
-          @css.blank? ? '' : build_css_file_name(@css)
+          if @css.blank? && @less.blank?
+            return ''
+          else
+            unless @css.blank?
+              build_css_file_name(@css)
+            else
+              build_less_file_name(@less)
+            end
+          end
         end
         
         def build_css_file_name(css_name)
           file_name = "#{css_name}.css"
           Dir.glob(File.join(RAILS_ROOT, '**', file_name)).first || File.join(RAILS_ROOT, 'public', 'stylesheets', 'mails', file_name)
+        end
+        
+        def build_less_file_name(less_name)
+          file_name = "#{less_name}.less"
+          Dir.glob(File.join(RAILS_ROOT, '**', file_name)).first || File.join(RAILS_ROOT, 'stylesheets', 'mails', file_name)
         end
         
     end
@@ -81,6 +103,7 @@ module ActionMailer
         include InstanceMethods
         
         adv_attr_accessor :css
+        adv_attr_accessor :less
         alias_method_chain :render_message, :inline_styles
       end
     end
