@@ -1,16 +1,8 @@
 h2. For the impatient
 
-Check out the demo application: 
-
-"http://opensource.imedo.de/htmlmail":http://opensource.imedo.de/htmlmail
-
 Install as plugin: 
 
-<pre>script/plugin install git://github.com/grimen/awesome_email.git</pre>
-
-Install as gem:
-
-<pre>sudo install grimen-awesome_email</pre>
+<pre>script/plugin install git://github.com/d--j/awesome_email.git</pre>
 
 Learn how to use it below.
 
@@ -23,7 +15,6 @@ h2. What does it do?
 
 There are a few interesting components in <code>awesome_email</code>:
 
-* awesome_email adds layout support to emails. That means that you can use templates for e-mails just like you would with normal Rails Views.
 * The HTML Mail's CSS is automatcally inlined. That means that your designer and/or CSS guy can design the email in a web browser without worrying about how it might look like in excotic email clients. Yes, it works in Outlook, too, and no, it "doesn't work in Outlook 2007 without tweaking":http://www.sitepoint.com/blogs/2007/01/10/microsoft-breaks-html-email-rendering-in-outlook. The reason is a "stupid decision from Microsoft about Outlook 2007", but we're working on that one.
 * ConvertEntities replaces Umlauts and other crazy symbols like &auml;, &Ouml; etc. with their HTML Entitiy counterparts e.g. <code>&amp;auml;</code> and so on.
 * HelperMethods allow you to dump the content of the CSS file right into a style tag inside the header of your HTML mail.
@@ -32,10 +23,10 @@ h2. How to use it
 
 In your Mailer.delivery_xxx methods you can use
 
-<macro:code lang="ruby">
-layout    "template_filename"
-css       "css_filename"
-</macro:code>
+<pre><code>
+    layout    "template_filename"
+    css       "css_filename"
+</code></pre>
 
 to define which layout should be used and which css file should be used to create inline styles
 
@@ -43,32 +34,42 @@ h3. CSS inlining
 
 The cummulated style of each DOM element will be set as an style attribute when using css inlining.
 
-Example:
+h4. Example
 
   your css file:
-  <macro:code lang="css">
-#some-id { font-size:2em; }
-.some-class { color:red; }
-  </macro:code>
-  
+<pre><code>
+    #some-id { font-size:2em; }
+    .some-class { color:red; }
+</code></pre>
+
   your template:
-  <macro:code lang="html">
-<p id="some-id" class="some-class">Hello World!</p>
-  </macro:code>
+<pre><code>
+    <p id="some-id" class="some-class">Hello World!</p>
+</code></pre>
   
   will result in the following code:
-  <macro:code lang="html">
-<p id="some-id" class="some-class" style="color:red; font-size:2em;">Hello World!</p>
-  </macro:code>
-  
+<pre><code>
+    <p id="some-id" class="some-class" style="color:red; font-size:2em;">Hello World!</p>
+</code></pre>
+
 h2. Important!
 
 Be sure to follow these simple conventions or otherwise awesome_emails's magic will fail:
 
-* The layout must be located inside <code>app/views/layouts/mailers/</code>
-* If you send mutlipart mails, check out the conventions on how to name your files: "http://rails.rubyonrails.com/classes/ActionMailer/Base.html":http://rails.rubyonrails.com/classes/ActionMailer/Base.html
-** So if you have these files inside of /app/views/{mailer_name}: *signup_notification.text.plain.erb*, *signup_notification.text.html.erb* ActionMailer will send a multipart mail with two parts: *text/plain* and *text/html*
+* If you send mutlipart mails, check out the conventions on how to name your files: "http://rails.rubyonrails.com/classes/ActionMailer/Base.html":http://rails.rubyonrails.com/classes/ActionMailer/Base.html So if you have these files inside of <code>/app/views/{mailer_name}</code>: <code>signup_notification.text.plain.erb</code>, <code>signup_notification.text.html.erb</code> ActionMailer will send a multipart mail with two parts: <code>text/plain</code> and <code>text/html</code>
 * Your CSS file must be inside of <code>/public/stylesheets</code>
+* Your layout files must be inside <code>/app/views/layout</code>
+
+If you use something like "Sass":http://sass-lang.com/ to generate your CSS files (and you should!) you can tell awsome_email by overwriting <code>ActionMailer::InlineStyles#maybe_generate_css_file</code>
+
+Here is an overwrite that works for Sass:
+<pre><code>
+ActionMailer::InlineStyles.module_eval do
+  def self.maybe_generate_css_file(file_name)
+    Sass::Plugin.check_for_updates
+  end
+end
+</code></pre>
 
 h2. Dependencies
 

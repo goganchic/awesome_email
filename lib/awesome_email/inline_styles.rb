@@ -94,6 +94,20 @@ module ActionMailer
       end
     end
     
+    ##
+    # This gets called whenever a css file need to be included.
+    # It is a template method that you can overwrite to generate the CSS on the fly
+    # with something like Sass or Less.
+    # 
+    # One possible overwrite for this could be:
+    # 
+    # ActionMailer::InlineStyles.module_eval do
+    #   def self.maybe_generate_css_file(file_name)
+    #     Sass::Plugin.check_for_updates
+    #   end
+    # end
+    #
+    # stick this in a initalizer and you can use Sass to write your mail's CSS.
     def self.maybe_generate_css_file(file_name)
       # template method -- overwrite for your favorite CSS genrator like Sass or Less
     end
