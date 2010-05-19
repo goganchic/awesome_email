@@ -79,7 +79,7 @@ module ActionMailer
         
         def build_css_file_name(css_name)
           file_name = "#{css_name}.css"
-          File.join(Rails.root, 'public', 'stylesheets', 'mails', file_name)
+          File.join(Rails.root, 'public', 'stylesheets', file_name)
         end
         
     end
