@@ -54,9 +54,11 @@ module ActionMailer
           html_doc = Nokogiri::HTML.parse(html)
         end
         
-        def parse_css_doc(file_name)
+        def parse_css_doc(file_names)
           css_doc = CssParser::Parser.new
-          css_doc.add_block!(parse_css_from_file(file_name))
+          file_names.each do |fn|
+            css_doc.add_block!(parse_css_from_file(fn))
+          end
           css_doc
         end
         
@@ -71,9 +73,10 @@ module ActionMailer
         
         def build_css_file_name_from_css_setting
           if @css.blank?
-            return ''
+            return []
           else
-            build_css_file_name(@css)
+            @css = [@css] unless @css.is_a?(Array)
+            @css.map {|f| build_css_file_name(f)}
           end
         end
         
