@@ -27,10 +27,15 @@ module ActionMailer
         render_inline(css_doc, html_doc)
       end
 
-      def render_message_with_inline_styles(method_name, body)
-        message = render_message_without_inline_styles(method_name, body)
-        return message if @css.blank?
-        inline(message)
+      def render_with_inline_styles(opts)
+        result = render_without_inline_styles(opts)
+        ct = @current_template_content_type || content_type
+
+        if @css.blank? || ct != 'text/html'
+          result
+        else
+          inline(result)
+        end
       end
 
       protected
@@ -93,7 +98,7 @@ module ActionMailer
         include InstanceMethods
 
         adv_attr_accessor :css
-        alias_method_chain :render_message, :inline_styles
+        alias_method_chain :render, :inline_styles
       end
     end
 
